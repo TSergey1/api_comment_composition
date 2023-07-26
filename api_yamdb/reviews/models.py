@@ -34,10 +34,9 @@ class User(AbstractUser):
 class Review(models.Model):
     """Модель отзывов к произведениям."""
 
-    title_id = models.ForeignKey(
+    title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='reviews',
         verbose_name='Произведение на которое пишется отзыв',
     )
     text = models.TextField(
@@ -47,7 +46,6 @@ class Review(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='reviews',
         verbose_name='Автор отзыва',
     )
     pub_date = models.DateTimeField(
@@ -55,7 +53,7 @@ class Review(models.Model):
         auto_now_add=True,
         db_index=True,
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='Рейтинг произведения',
         help_text='Поставьте вашу оценку произведению 1-10',
         validators=[MinValueValidator(1), MaxValueValidator(10)],
@@ -65,6 +63,10 @@ class Review(models.Model):
         ordering = ('pub_date',)
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+        default_related_name = 'reviews'
+
+        def str(self):
+            return self.text[:15]
 
 
 class Comment(models.Model):
@@ -73,7 +75,6 @@ class Comment(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='comments',
         verbose_name='Автор комментария',
     )
     pub_date = models.DateTimeField(
@@ -85,10 +86,9 @@ class Comment(models.Model):
         'Текст комментария',
         help_text='Введите текст комментария',
     )
-    review_id = models.ForeignKey(
+    review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments',
         verbose_name='Комментируемый отзыв',
     )
 
@@ -96,3 +96,7 @@ class Comment(models.Model):
         ordering = ('pub_date',)
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
+        default_related_name = 'comments'
+
+        def str(self):
+            return self.text[:15]
