@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class User(AbstractUser):
@@ -28,3 +29,70 @@ class User(AbstractUser):
         ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+
+class Review(models.Model):
+    """Модель отзывов к произведениям."""
+
+    title_id = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Произведение на которое пишется отзыв',
+    )
+    text = models.TextField(
+        'Текст отзыва',
+        help_text='Введите текст отзыва',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Автор отзыва',
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления отзыва',
+        auto_now_add=True,
+        db_index=True,
+    )
+    score = models.IntegerField(
+        verbose_name='Рейтинг произведения',
+        help_text='Поставьте вашу оценку произведению 1-10',
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+    )
+
+    class Meta:
+        ordering = ('pub_date',)
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+
+
+class Comment(models.Model):
+    """Модель комментариев к отзывам."""
+
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор комментария',
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления комментария',
+        auto_now_add=True,
+        db_index=True,
+    )
+    text = models.TextField(
+        'Текст комментария',
+        help_text='Введите текст комментария',
+    )
+    review_id = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Комментируемый отзыв',
+    )
+
+    class Meta:
+        ordering = ('pub_date',)
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
