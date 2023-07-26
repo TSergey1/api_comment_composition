@@ -31,10 +31,16 @@ class User(AbstractUser):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=256)
+    """Модель категорий произведений."""
+
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Наименование категории'
+    )
     slug = models.SlugField(
         max_length=50,
-        unique=True
+        unique=True,
+        verbose_name='Slug категории'
     )
 
     class Meta:
@@ -42,12 +48,21 @@ class Category(models.Model):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
+    def __str__(self):
+        return self.name
+
 
 class Genre(models.Model):
-    name = models.CharField(max_length=256)
+    """Модель жанров произведений."""
+
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Наименование жанра'
+    )
     slug = models.SlugField(
         max_length=50,
-        unique=True
+        unique=True,
+        verbose_name='Slug жанра'
     )
 
     class Meta:
@@ -55,26 +70,40 @@ class Genre(models.Model):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
+    def __str__(self):
+        return self.name
+
 
 class Title(models.Model):
-    name = models.TextField(max_length=256)
-    year = models.IntegerField(blank=True, null=True)
-    description = models.TextField()
+    """Модель произведений."""
+
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Название'
+    )
+    year = models.IntegerField(
+        verbose_name='Год выпуска'
+    )
+    description = models.TextField(
+        blank=True,
+        verbose_name='Описание'
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
-        blank=True,
         null=True,
-        related_name='titles'
+        verbose_name='Slug категории'
     )
     genre = models.ManyToManyField(
         Genre,
-        blank=True,
-        # null=True,
-        related_name='titles'
+        verbose_name='Slug жанра'
     )
 
     class Meta:
         ordering = ('name',)
+        default_related_name = 'titles'
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
+
+    def __str__(self):
+        return self.name
