@@ -26,7 +26,7 @@ class User(AbstractUser):
         ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-    
+
     def __str__(self):
         return self.username
 
@@ -156,8 +156,8 @@ class Review(models.Model):
         verbose_name_plural = 'Отзывы'
         default_related_name = 'reviews'
 
-        def str(self):
-            return self.text[:15]
+    def str(self):
+        return self.text[:15]
 
 
 class Comment(models.Model):
@@ -189,5 +189,5 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'
 
-        def str(self):
-            return self.text[:15]
+    def str(self):
+        return self.text[:15]
