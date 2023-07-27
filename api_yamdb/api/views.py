@@ -37,6 +37,28 @@ class RegistrationUserView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class GetTokenView(APIView):
+    """Вьюсет для создания обьектов класса User."""
+    def post(self, request, format=None):
+        serializer = RegistrationUserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            user, _ = User.objects.get_or_create(**serializer.validated_data)
+            confirmation_code = default_token_generator.make_token(user)
+            username = request.data.get('username')
+            username
+            send_mail(
+                subject='Код регистрации YaMDb',
+                message=f'username: {username}, '
+                        f'confirmation_code: {confirmation_code}',
+                from_email='aaa@yamdb.com',
+                recipient_list=[user.email],
+                fail_silently=True,
+            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_token(request):
