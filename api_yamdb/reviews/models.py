@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class User(AbstractUser):
-    """Модель пользователей"""
+    """Модель пользователей."""
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
@@ -25,7 +26,7 @@ class User(AbstractUser):
         ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-
+    
     def __str__(self):
         return self.username
 
@@ -119,3 +120,74 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    """Модель отзывов к произведениям."""
+
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        verbose_name='Произведение на которое пишется отзыв',
+    )
+    text = models.TextField(
+        'Текст отзыва',
+        help_text='Введите текст отзыва',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор отзыва',
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления отзыва',
+        auto_now_add=True,
+        db_index=True,
+    )
+    score = models.PositiveSmallIntegerField(
+        verbose_name='Рейтинг произведения',
+        help_text='Поставьте вашу оценку произведению 1-10',
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+    )
+
+    class Meta:
+        ordering = ('pub_date',)
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+        default_related_name = 'reviews'
+
+        def str(self):
+            return self.text[:15]
+
+
+class Comment(models.Model):
+    """Модель комментариев к отзывам."""
+
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор комментария',
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления комментария',
+        auto_now_add=True,
+        db_index=True,
+    )
+    text = models.TextField(
+        'Текст комментария',
+        help_text='Введите текст комментария',
+    )
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        verbose_name='Комментируемый отзыв',
+    )
+
+    class Meta:
+        ordering = ('pub_date',)
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        default_related_name = 'comments'
+
+        def str(self):
+            return self.text[:15]
