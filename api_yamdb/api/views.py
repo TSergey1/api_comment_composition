@@ -7,6 +7,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
@@ -21,7 +22,7 @@ User = get_user_model()
 
 class RegistrationUserView(APIView):
     """Вьюсет для создания обьектов класса User."""
-    def post(self, request, format=None):
+    def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -62,8 +63,10 @@ class GetTokenView(APIView):
 
 class UserViewSet(viewsets.ModelViewSet):
     """ViewSet пользователей."""
+    lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializerForAdmin
+    pagination_class = PageNumberPagination
     permission_classes = (IsAdmin,)
 
     @action(methods=['get', 'patch'],

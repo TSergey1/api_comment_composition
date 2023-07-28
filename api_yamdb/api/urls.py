@@ -4,7 +4,7 @@ from api.views import GetTokenView, RegistrationUserView, UserViewSet
 
 
 router = DefaultRouter()
-router.register('users', UserViewSet)
+router.register(r'users', UserViewSet)
 
 urlpatterns = [
     path('v1/', include(router.urls)),
