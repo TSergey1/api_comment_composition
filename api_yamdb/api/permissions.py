@@ -4,7 +4,7 @@ from rest_framework import permissions
 class IsAdminOrReadOnly(permissions.BasePermission):
     """
     Класс права доступа только админу или чтение
-    для Title, Categories, Ganrez
+    для Title, Categories, Ganrez.
     """
     def has_permission(self, request, view):
         return (request.method in permissions.SAFE_METHODS
@@ -15,7 +15,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 class IsAuthorOrAdminOrModeratOrReadOnly(permissions.BasePermission):
     """
     Класс права доступа админу, модератору, автору или для чтение
-    для Comments, Review
+    для Comments, Review.
     """
 
     def has_permission(self, request, view):
@@ -28,3 +28,9 @@ class IsAuthorOrAdminOrModeratOrReadOnly(permissions.BasePermission):
                 or request.user.is_moderator
                 or obj.author == request.user
                 )
+
+
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and (
+            request.user.is_admin or request.user.is_superuser)

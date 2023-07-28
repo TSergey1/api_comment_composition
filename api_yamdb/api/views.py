@@ -3,14 +3,18 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
-from api.serializers import GetTokenSerializer, RegistrationUserSerializer
+from api.serializers import (GetTokenSerializer,
+                             UserCreateSerializer,
+                             UserSerializerForAdmin,
+                             UserSerializerForAuther)
+from api.permissions import IsAdmin
 
 User = get_user_model()
 
@@ -18,7 +22,7 @@ User = get_user_model()
 class RegistrationUserView(APIView):
     """Вьюсет для создания обьектов класса User."""
     def post(self, request, format=None):
-        serializer = RegistrationUserSerializer(data=request.data)
+        serializer = UserCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             user, _ = User.objects.get_or_create(**serializer.validated_data)
@@ -39,7 +43,7 @@ class RegistrationUserView(APIView):
 
 class GetTokenView(APIView):
     """Вьюсет для создания обьектов класса User."""
-    def post(self, request, format=None):
+    def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = get_object_or_404(
@@ -55,3 +59,30 @@ class GetTokenView(APIView):
         return Response({"message": "Неверный код подтверждения."},
                         status.HTTP_400_BAD_REQUEST)
 
+
+class UserViewSet(viewsets.ModelViewSet):
+    """ViewSet пользователей."""
+    queryset = User.objects.all()
+    serializer_class = UserSerializerForAdmin
+    permission_classes = (IsAdmin,)
+
+    @action(methods=['get', 'patch'],
+            detail=False,
+            url_path='me',
+            permission_classes=(IsAuthenticated,),
+            serializer_class=UserSerializerForAuther)
+    def me(self, request):
+        user = request.user
+        if request.method == "GET":
+            serializer = self.get_serializer(user)
+            return Response(serializer.data, status.HTTP_200_OK)
+        if request.method == "PATCH":
+            serializer = self.get_serializer(
+                user,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
