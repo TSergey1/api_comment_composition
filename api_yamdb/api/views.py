@@ -2,14 +2,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets
 from rest_framework.pagination import LimitOffsetPagination
 
-from api.permissions import OwnerOrReadOnly
+from api.permissions import IsAuthorOrAdminOrModeratOrReadOnly
 from api.serializers import CommentSerializer, ReviewSerialaizer
 from reviews.models import Comment, Review, Title
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerialaizer
-    permission_classes = (OwnerOrReadOnly,)
+    permission_classes = (IsAuthorOrAdminOrModeratOrReadOnly,)
     pagination_class = LimitOffsetPagination
     
     def get_queryset(self):
@@ -22,7 +22,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (OwnerOrReadOnly,)
+    permission_classes = (IsAuthorOrAdminOrModeratOrReadOnly,)
     pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
