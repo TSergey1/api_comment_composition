@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -55,7 +55,7 @@ class GetTokenView(APIView):
             user,
             serializer.validated_data['confirmation_code']
         ):
-            token = RefreshToken.for_user(user)
+            token = AccessToken.for_user(user)
             return Response({"token": str(token)}, status.HTTP_200_OK)
         return Response({"message": "Неверный код подтверждения."},
                         status.HTTP_400_BAD_REQUEST)
