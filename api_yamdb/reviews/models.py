@@ -99,6 +99,7 @@ class Title(models.Model):
     )
     description = models.TextField(
         blank=True,
+        null=True,
         verbose_name='Описание'
     )
     category = models.ForeignKey(
