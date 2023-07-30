@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
 
 User = get_user_model()
@@ -49,7 +49,19 @@ class GetTokenSerializer(serializers.Serializer):
 
 
 class UserSerializerForAdmin(serializers.ModelSerializer):
-    """Сериализатор пользователей User для адимна"""
+    """Сериализатор пользователей User для адимна."""
+
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ],
+        required=True,
+    )
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
 
     class Meta:
         model = User
@@ -59,6 +71,13 @@ class UserSerializerForAdmin(serializers.ModelSerializer):
                   'last_name',
                   'bio',
                   'role')
+
+        # validators = [
+        #     UniqueTogetherValidator(
+        #         queryset=User.objects.all(),
+        #         fields=('email', 'username')
+        #     )
+        # ]
 
     def validate(self, data):
         if data.get('username') == 'me':
