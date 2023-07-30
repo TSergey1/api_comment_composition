@@ -10,21 +10,9 @@ User = get_user_model()
 class UserCreateSerializer(serializers.ModelSerializer):
     """Сериализатор регистрации пользователя."""
 
-    def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError('Не допустимое имя')
-        return value
-
     class Meta:
         model = User
         fields = ('email', 'username')
-
-        validators = [
-            UniqueTogetherValidator(
-                queryset=User.objects.all(),
-                fields=('email', 'username')
-            )
-        ]
 
     def validate(self, data):
         if data.get('username') == 'me':
