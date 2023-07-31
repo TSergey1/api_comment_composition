@@ -71,17 +71,6 @@ class UserSerializerForAdmin(serializers.ModelSerializer):
             )
         return value
 
-    def validate(self, data):
-        if User.objects.filter(username=data.get('username')):
-            raise serializers.ValidationError(
-                'Пользователь с таким username уже существует'
-            )
-        if User.objects.filter(email=data.get('email')):
-            raise serializers.ValidationError(
-                'Пользователь с таким email уже существует'
-            )
-        return data
-
 
 class UserSerializerForAuther(serializers.ModelSerializer):
     """Сериализатор пользователей User для автора."""
