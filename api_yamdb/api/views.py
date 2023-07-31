@@ -42,7 +42,7 @@ class RegistrationUserView(APIView):
 
 
 class GetTokenView(APIView):
-    """Вьюсет для создания обьектов класса User."""
+    """Вьюсет для получения токена"""
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
