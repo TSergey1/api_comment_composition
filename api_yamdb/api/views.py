@@ -1,6 +1,7 @@
-from rest_framework import permissions, viewsets
+from rest_framework import filters, permissions, viewsets
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
+
 
 from api.permissions import (
     IsAdminOrReadOnly,
@@ -22,8 +23,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     lookup_field = 'slug'
     pagination_class = PageNumberPagination
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_fields = ('name', 'slug')
+    search_fields = ('name', 'slug') 
     # permission_classes = (
     #     IsAdminOrReadOnly,
     #     permissions.IsAuthenticatedOrReadOnly,
@@ -35,8 +37,9 @@ class GenreViewSet(viewsets.ModelViewSet):
     serializer_class = GenreSerializer
     lookup_field = 'slug'
     pagination_class = PageNumberPagination
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_fields = ('name', 'slug')
+    search_fields = ('name', 'slug')
     # permission_classes = (
     #     IsAdminOrReadOnly,
     #     permissions.IsAuthenticatedOrReadOnly,
