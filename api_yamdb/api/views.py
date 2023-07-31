@@ -3,6 +3,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 
+
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -24,8 +25,7 @@ class RegistrationUserView(APIView):
     """Вьюсет для создания обьектов класса User."""
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=False)
-        serializer.save()
+        serializer.is_valid(raise_exception=True)
         user, _ = User.objects.get_or_create(**serializer.validated_data)
         confirmation_code = default_token_generator.make_token(user)
         username = request.data.get('username')
@@ -38,7 +38,6 @@ class RegistrationUserView(APIView):
             fail_silently=True,
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetTokenView(APIView):
