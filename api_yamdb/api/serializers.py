@@ -3,6 +3,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
+from api.validators import BaseValidate
 from reviews.models import (Category,
                             Comment,
                             Genre,
@@ -12,7 +13,7 @@ from reviews.models import (Category,
 User = get_user_model()
 
 
-class UserCreateSerializer(serializers.Serializer):
+class UserCreateSerializer(serializers.Serializer, BaseValidate):
     """Сериализатор регистрации пользователя."""
 
     username_validator = UnicodeUsernameValidator()
@@ -27,13 +28,6 @@ class UserCreateSerializer(serializers.Serializer):
         max_length=254,
         required=True,
     )
-
-    def validate_username(self, value):
-        if value.lower() == "me":
-            raise serializers.ValidationError(
-                'Использовать имя me запрещено.'
-            )
-        return value
 
     def validate(self, data):
         username = data.get('username')
@@ -58,7 +52,7 @@ class GetTokenSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField()
 
 
-class UserSerializerForAdmin(serializers.ModelSerializer):
+class UserSerializerForAdmin(serializers.ModelSerializer, BaseValidate):
     """Сериализатор пользователей User для адимна."""
 
     class Meta:
@@ -69,13 +63,6 @@ class UserSerializerForAdmin(serializers.ModelSerializer):
                   'last_name',
                   'bio',
                   'role')
-
-    def validate_username(self, value):
-        if value.lower() == "me":
-            raise serializers.ValidationError(
-                'Использовать имя me запрещено.'
-            )
-        return value
 
 
 class UserSerializerForAuther(serializers.ModelSerializer):
