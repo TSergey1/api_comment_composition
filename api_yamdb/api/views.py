@@ -3,7 +3,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 
-
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -12,11 +11,15 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
-from api.serializers import (GetTokenSerializer,
+from api.serializers import (CommentSerializer,
+                             GetTokenSerializer,
+                             ReviewSerialaizer,
                              UserCreateSerializer,
                              UserSerializerForAdmin,
                              UserSerializerForAuther)
-from api.permissions import IsAdmin
+from api.permissions import (IsAdmin,
+                             IsAuthorOrAdminOrModeratOrReadOnly,)
+from reviews.models import Comment, Review, Title
 
 User = get_user_model()
 
@@ -91,3 +94,37 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status.HTTP_200_OK)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """Класс представлений для отзывов к произведениям."""
+    serializer_class = ReviewSerialaizer
+    permission_classes = (IsAuthorOrAdminOrModeratOrReadOnly,)
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        """Получение списка/одного комментария, в зависимости от запроса."""
+        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
+        return Review.objects.filter(title=title)
+
+    def perform_create(self, serializer):
+        """Создание отзыва, с проверкой на уникальнось в сериализаторе."""
+        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """Класс представлений для комментариев к отзывам."""
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthorOrAdminOrModeratOrReadOnly,)
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        """Получение списка/одного комментария, в зависимости от запроса."""
+        review = get_object_or_404(Review, pk=self.kwargs['review_id'])
+        return Comment.objects.filter(review=review)
+
+    def perform_create(self, serializer):
+        """Создание нового комментария, без проверок на уникальность."""
+        review = get_object_or_404(Review, pk=self.kwargs['review_id'])
+        serializer.save(author=self.request.user, review=review)
