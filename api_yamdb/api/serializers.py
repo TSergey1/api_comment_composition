@@ -5,15 +5,19 @@ from reviews.models import Comment, Review, Title
 
 
 class ReviewSerialaizer(serializers.ModelSerializer):
+    """Преобразование данных в формат Python для отзывов."""
+
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
-    
+
     class Meta:
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
 
     def validate(self, validated_data):
+        """Проверка на уникальность отзыва."""
+
         if self.context['request'].method != 'POST':
             return validated_data
         pk = self.context['view'].kwargs.get('title_id')
@@ -30,6 +34,8 @@ class ReviewSerialaizer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Преобразование данных в формат Python для комментариев."""
+
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
