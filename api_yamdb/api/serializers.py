@@ -1,10 +1,10 @@
-from django.db.models import Avg
 from rest_framework import serializers
 
-from reviews.models import Category, Genre, Review, Title
+from reviews.models import Category, Genre, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для категорий."""
 
     class Meta:
         model = Category
@@ -13,6 +13,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для жанров."""
 
     class Meta:
         model = Genre
@@ -21,26 +22,44 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    genre = GenreSerializer(many=True, read_only=True)
-    rating = serializers.SerializerMethodField()
+    """Сериализатор для произведений (кроме запросов 'list', 'retrieve')."""
+
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
+    )
 
     class Meta:
         model = Title
-        read_only_fields = ('category', 'genre')
         fields = (
             'id',
             'name',
             'year',
-            'rating',
             'description',
             'genre',
             'category'
         )
 
-    def get_rating(self, obj):
-        res = Review.objects.filter(title=obj.id).aggregate(Avg('score'))
-        if res['score__avg'] is None:
-            return 'None'
-        else:
-            return int(res['score__avg'])
+
+class ReadTitleSerializer(serializers.ModelSerializer):
+    """Сериализатор для произведений (только запросов 'list', 'retrieve')."""
+
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Title
+        fields = (
+            'id',
+            'name',
+            'year',
+            'description',
+            'genre',
+            'category',
+            'rating'
+        )
