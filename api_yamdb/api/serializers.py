@@ -156,6 +156,7 @@ class ReadTitleSerializer(serializers.ModelSerializer):
 
 class ReviewSerialaizer(serializers.ModelSerializer):
     """Преобразование данных в формат Python для отзывов."""
+
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
@@ -184,6 +185,7 @@ class ReviewSerialaizer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     """Преобразование данных в формат Python для комментариев."""
+
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )

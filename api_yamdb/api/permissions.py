@@ -6,9 +6,9 @@ class IsAdminOrReadOnly(permissions.BasePermission):
     Класс права доступа только админу или чтение
     для Title, Categories, Ganrez.
     """
-    
-    def has_permission(self, request, view): 
-        return (request.method in permissions.SAFE_METHODS 
+
+    def has_permission(self, request, view):
+        return (request.method in permissions.SAFE_METHODS
                 or (request.user.is_authenticated and (
                     request.user.is_admin or request.user.is_superuser)))
 
@@ -34,6 +34,7 @@ class IsAuthorOrAdminOrModeratOrReadOnly(permissions.BasePermission):
 
 class IsAdmin(permissions.BasePermission):
     """Класс права доступа админу, суперюзера."""
+
     def has_permission(self, request, view):
         return request.user.is_authenticated and (
             request.user.is_admin or request.user.is_superuser)
