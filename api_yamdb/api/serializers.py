@@ -168,13 +168,13 @@ class ReviewSerialaizer(serializers.ModelSerializer):
     def validate(self, validated_data):
         """Проверка на уникальность отзыва."""
 
-        if self.context['request'].method != 'POST':
+        if self.context.get('request').method != 'POST':
             return validated_data
-        pk = self.context['view'].kwargs.get('title_id')
+        pk = self.context.get('view').kwargs.get('title_id')
         title = get_object_or_404(Title, pk=pk)
         current_review = Review.objects.filter(
             title=title,
-            author=self.context['request'].user,
+            author=self.context.get('request').user,
         )
         if current_review.exists():
             raise serializers.ValidationError(

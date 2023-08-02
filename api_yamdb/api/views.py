@@ -66,11 +66,11 @@ class GetTokenView(APIView):
         serializer.is_valid(raise_exception=True)
         user = get_object_or_404(
             User,
-            username=serializer.validated_data['username']
+            username=serializer.validated_data.get('username')
         )
         if default_token_generator.check_token(
             user,
-            serializer.validated_data['confirmation_code']
+            serializer.validated_data.get('confirmation_code')
         ):
             token = AccessToken.for_user(user)
             return Response({"token": str(token)}, status.HTTP_200_OK)
@@ -137,7 +137,8 @@ class GenreViewSet(ListCreateDestroyViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     """Вьюсет для обьектов класса Title."""
 
-    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).order_by('name')
     serializer_class = TitleSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     search_fields = ('genre',)
@@ -159,12 +160,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Получение списка/одного комментария, в зависимости от запроса."""
-        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         return Review.objects.filter(title=title)
 
     def perform_create(self, serializer):
         """Создание отзыва, с проверкой на уникальнось в сериализаторе."""
-        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
 
 
@@ -177,10 +178,10 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Получение списка/одного комментария, в зависимости от запроса."""
-        review = get_object_or_404(Review, pk=self.kwargs['review_id'])
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
         return Comment.objects.filter(review=review)
 
     def perform_create(self, serializer):
         """Создание нового комментария, без проверок на уникальность."""
-        review = get_object_or_404(Review, pk=self.kwargs['review_id'])
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
         serializer.save(author=self.request.user, review=review)
