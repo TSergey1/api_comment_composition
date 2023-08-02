@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django_filters',
     'api',
     'reviews',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -113,6 +114,7 @@ AUTH_USER_MODEL = 'reviews.User'
 # REST_FRAMEWORK
 
 REST_FRAMEWORK = {
+
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],

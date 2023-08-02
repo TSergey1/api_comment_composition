@@ -3,13 +3,18 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from reviews.models import Comment, Review, Title
+from reviews.models import (Category,
+                            Comment,
+                            Genre,
+                            Review,
+                            Title)
 
 User = get_user_model()
 
 
 class UserCreateSerializer(serializers.Serializer):
     """Сериализатор регистрации пользователя."""
+
     username_validator = UnicodeUsernameValidator()
 
     username = serializers.CharField(
@@ -48,6 +53,7 @@ class UserCreateSerializer(serializers.Serializer):
 
 class GetTokenSerializer(serializers.Serializer):
     """Сериализатор получения токена."""
+
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
@@ -84,6 +90,68 @@ class UserSerializerForAuther(serializers.ModelSerializer):
                   'bio',
                   'role')
         read_only_fields = ('role',)
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для категорий."""
+
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
+        lookup_field = 'slug'
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для жанров."""
+
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug')
+        lookup_field = 'slug'
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    """Сериализатор для произведений (кроме запросов 'list', 'retrieve')."""
+
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
+    )
+
+    class Meta:
+        model = Title
+        fields = (
+            'id',
+            'name',
+            'year',
+            'description',
+            'genre',
+            'category'
+        )
+
+
+class ReadTitleSerializer(serializers.ModelSerializer):
+    """Сериализатор для произведений (только запросов 'list', 'retrieve')."""
+
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Title
+        fields = (
+            'id',
+            'name',
+            'year',
+            'description',
+            'genre',
+            'category',
+            'rating'
+        )
 
 
 class ReviewSerialaizer(serializers.ModelSerializer):

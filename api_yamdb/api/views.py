@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 
 from rest_framework import filters, status, viewsets
@@ -11,21 +12,32 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
-from api.serializers import (CommentSerializer,
+from api.mixins import ListCreateDestroyViewSet
+from api.serializers import (CategorySerializer,
+                             CommentSerializer,
+                             GenreSerializer,
                              GetTokenSerializer,
+                             ReadTitleSerializer,
                              ReviewSerialaizer,
+                             TitleSerializer,
                              UserCreateSerializer,
                              UserSerializerForAdmin,
                              UserSerializerForAuther)
 from api.permissions import (IsAdmin,
+                             IsAdminOrReadOnly,
                              IsAuthorOrAdminOrModeratOrReadOnly,)
-from reviews.models import Comment, Review, Title
+from reviews.models import (Category,
+                            Comment,
+                            Genre,
+                            Review,
+                            Title)
 
 User = get_user_model()
 
 
 class RegistrationUserView(APIView):
     """Вьюсет для создания обьектов класса User."""
+
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -46,6 +58,7 @@ class RegistrationUserView(APIView):
 
 class GetTokenView(APIView):
     """Вьюсет для получения токена"""
+
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -65,6 +78,7 @@ class GetTokenView(APIView):
 
 class UserViewSet(viewsets.ModelViewSet):
     """ViewSet пользователей."""
+
     lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializerForAdmin
@@ -96,8 +110,46 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
+class CategoryViewSet(ListCreateDestroyViewSet):
+    """Вьюсет для обьектов класса Category."""
+
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    permission_classes = (IsAdminOrReadOnly,)
+
+
+class GenreViewSet(ListCreateDestroyViewSet):
+    """Вьюсет для обьектов класса Genre."""
+
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    permission_classes = (IsAdminOrReadOnly,)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """Вьюсет для обьектов класса Title."""
+
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    serializer_class = TitleSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('genre',)
+    permission_classes = (IsAdminOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return ReadTitleSerializer
+        return TitleSerializer
+
+
 class ReviewViewSet(viewsets.ModelViewSet):
     """Класс представлений для отзывов к произведениям."""
+
     serializer_class = ReviewSerialaizer
     permission_classes = (IsAuthorOrAdminOrModeratOrReadOnly,)
     pagination_class = PageNumberPagination
@@ -115,6 +167,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     """Класс представлений для комментариев к отзывам."""
+
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorOrAdminOrModeratOrReadOnly,)
     pagination_class = PageNumberPagination
