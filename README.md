@@ -13,6 +13,13 @@ api_yamdb
 
 Проект API для приложениея Api_yamdb. Документация к API доступна http://127.0.0.1:8000/redoc/
 
+Технологии
+Python 3.9
+Django 3.2
+Django Rest Framework 3.12.4
+Simple JWT
+
+
 ## Инструкция по запуску проекта
 1. Склонируйте проект «Api_yamdb» себе на компьютер.
 2. Создайте  virtual environment для папки с проектом: 
@@ -89,3 +96,8 @@ GET /api/v1/titles/{title_id}/reviews/
 POST /api/v1/titles/{title_id}/reviews/{review_id}/comments/
 
 Полный список запросов API находятся в документации
+
+Авторы
+Тыртычный Сергей - https://github.com/TSergey1
+Леденев Виктор - https://github.com/brasavarius
+Баранов Дмитрий - https://github.com/dvkab

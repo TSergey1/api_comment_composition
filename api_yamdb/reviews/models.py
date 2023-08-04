@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import (MinValueValidator,
+                                    MaxValueValidator,
+                                    RegexValidator)
+
+from api_yamdb.settings import CONST
 
 
 class User(AbstractUser):
@@ -8,22 +12,38 @@ class User(AbstractUser):
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
+    MAX_LENGTH_USERNAME = 150
+    MAX_LENGTH_EMAIL = 254
+    MAX_LENGTH_ROLE = 100
     ROLES = [
         (ADMIN, 'Администратор'),
         (MODERATOR, 'Модератор'),
         (USER, 'Пользователь'),
     ]
-    email = models.EmailField(max_length=254, unique=True)
+    username = models.CharField(
+        max_length=CONST['MAX_LENGTH_USERNAME'],
+        verbose_name='Имя пользователя',
+        unique=True,
+        db_index=True,
+        validators=[RegexValidator(
+            regex=r'^[\w.@+-]+$',
+            message='Имя пользователя содержит недопустимый символ'
+        )]
+    )
+    email = models.EmailField(
+        max_length=CONST['MAX_LENGTH_EMAIL'],
+        unique=True
+    )
     bio = models.TextField(blank=True, verbose_name='Биография')
     role = models.CharField(
-        max_length=100,
+        max_length=CONST['MAX_LENGTH_ROLE'],
         choices=ROLES,
-        default='user',
+        default=USER,
         verbose_name='Роль'
     )
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
@@ -47,13 +67,13 @@ class Category(models.Model):
     """Модель категорий произведений."""
 
     name = models.CharField(
-        max_length=256,
-        verbose_name='Наименование категории'
+        max_length=CONST['MAX_LENGTH_NAME'],
+        verbose_name='Наименование'
     )
     slug = models.SlugField(
-        max_length=50,
+        max_length=CONST['MAX_LENGTH_SLUG'],
         unique=True,
-        verbose_name='Slug категории'
+        verbose_name='Slug'
     )
 
     class Meta:
@@ -69,13 +89,13 @@ class Genre(models.Model):
     """Модель жанров произведений."""
 
     name = models.CharField(
-        max_length=256,
-        verbose_name='Наименование жанра'
+        max_length=CONST['MAX_LENGTH_NAME'],
+        verbose_name='Наименование'
     )
     slug = models.SlugField(
-        max_length=50,
+        max_length=CONST['MAX_LENGTH_SLUG'],
         unique=True,
-        verbose_name='Slug жанра'
+        verbose_name='Slug'
     )
 
     class Meta:
@@ -91,7 +111,7 @@ class Title(models.Model):
     """Модель произведений."""
 
     name = models.CharField(
-        max_length=256,
+        max_length=CONST['MAX_LENGTH_NAME'],
         verbose_name='Название'
     )
     year = models.IntegerField(
