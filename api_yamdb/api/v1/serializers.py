@@ -3,7 +3,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from api.validators import BaseValidate
+from .validators import BaseValidate
 from reviews.models import (Category,
                             Comment,
                             Genre,

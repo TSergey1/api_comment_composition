@@ -13,21 +13,21 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
-from api.filters import TitleFilters
-from api.mixins import ListCreateDestroyViewSet
-from api.serializers import (CategorySerializer,
-                             CommentSerializer,
-                             GenreSerializer,
-                             GetTokenSerializer,
-                             ReadTitleSerializer,
-                             ReviewSerialaizer,
-                             TitleSerializer,
-                             UserCreateSerializer,
-                             UserSerializerForAdmin,
-                             UserSerializerForAuther)
-from api.permissions import (IsAdmin,
-                             IsAdminOrReadOnly,
-                             IsAuthorOrAdminOrModeratOrReadOnly,)
+from .filters import TitleFilters
+from .mixins import ListCreateDestroyViewSet
+from .serializers import (CategorySerializer,
+                          CommentSerializer,
+                          GenreSerializer,
+                          GetTokenSerializer,
+                          ReadTitleSerializer,
+                          ReviewSerialaizer,
+                          TitleSerializer,
+                          UserCreateSerializer,
+                          UserSerializerForAdmin,
+                          UserSerializerForAuther)
+from .permissions import (IsAdmin,
+                          IsAdminOrReadOnly,
+                          IsAuthorOrAdminOrModeratOrReadOnly,)
 from reviews.models import (Category,
                             Comment,
                             Genre,
