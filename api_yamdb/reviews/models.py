@@ -30,7 +30,10 @@ class User(AbstractUser):
             message='Имя пользователя содержит недопустимый символ'
         )]
     )
-    email = models.EmailField(max_length=CONST['MAX_LENGTH_EMAIL'], unique=True)
+    email = models.EmailField(
+        max_length=CONST['MAX_LENGTH_EMAIL'],
+        unique=True
+    )
     bio = models.TextField(blank=True, verbose_name='Биография')
     role = models.CharField(
         max_length=CONST['MAX_LENGTH_ROLE'],
@@ -64,13 +67,13 @@ class Category(models.Model):
     """Модель категорий произведений."""
 
     name = models.CharField(
-        max_length=256,
-        verbose_name='Наименование категории'
+        max_length=CONST['MAX_LENGTH_NAME'],
+        verbose_name='Наименование'
     )
     slug = models.SlugField(
-        max_length=50,
+        max_length=CONST['MAX_LENGTH_SLUG'],
         unique=True,
-        verbose_name='Slug категории'
+        verbose_name='Slug'
     )
 
     class Meta:
@@ -86,13 +89,13 @@ class Genre(models.Model):
     """Модель жанров произведений."""
 
     name = models.CharField(
-        max_length=256,
-        verbose_name='Наименование жанра'
+        max_length=CONST['MAX_LENGTH_NAME'],
+        verbose_name='Наименование'
     )
     slug = models.SlugField(
-        max_length=50,
+        max_length=CONST['MAX_LENGTH_SLUG'],
         unique=True,
-        verbose_name='Slug жанра'
+        verbose_name='Slug'
     )
 
     class Meta:
@@ -108,7 +111,7 @@ class Title(models.Model):
     """Модель произведений."""
 
     name = models.CharField(
-        max_length=256,
+        max_length=CONST['MAX_LENGTH_NAME'],
         verbose_name='Название'
     )
     year = models.IntegerField(

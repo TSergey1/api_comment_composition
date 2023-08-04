@@ -23,7 +23,7 @@ class UserCreateSerializer(serializers.Serializer, BaseUserValidators):
 
     username = serializers.CharField(
         max_length=CONST['MAX_LENGTH_USERNAME'],
-        validators=[username_validator],
+        validators=[username_validator, ],
         required=True,
     )
 
