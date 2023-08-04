@@ -3,12 +3,14 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
+from api_yamdb.settings import CONST
 from .validators import BaseValidate
 from reviews.models import (Category,
                             Comment,
                             Genre,
                             Review,
                             Title)
+
 
 User = get_user_model()
 
@@ -19,13 +21,13 @@ class UserCreateSerializer(serializers.Serializer, BaseValidate):
     username_validator = UnicodeUsernameValidator()
 
     username = serializers.CharField(
-        max_length=150,
+        max_length=CONST['MAX_LENGTH_USERNAME'],
         validators=[username_validator],
         required=True,
     )
 
     email = serializers.EmailField(
-        max_length=254,
+        max_length=CONST['MAX_LENGTH_EMAIL'],
         required=True,
     )
 

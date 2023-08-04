@@ -97,9 +97,6 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer_class=UserSerializerForAuther)
     def me(self, request):
         user = request.user
-        if request.method == "GET":
-            serializer = self.get_serializer(user)
-            return Response(serializer.data, status.HTTP_200_OK)
         if request.method == "PATCH":
             serializer = self.get_serializer(
                 user,
@@ -109,7 +106,8 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status.HTTP_200_OK)
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        serializer = self.get_serializer(user)
+        return Response(serializer.data, status.HTTP_200_OK)
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
