@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import (MinValueValidator,
-                                    MaxValueValidator,
-                                    RegexValidator)
+                                    MaxValueValidator)
 
 from api_yamdb.settings import CONST
+from .validators import validate_username
 
 
 class User(AbstractUser):
@@ -25,10 +25,7 @@ class User(AbstractUser):
         verbose_name='Имя пользователя',
         unique=True,
         db_index=True,
-        validators=[RegexValidator(
-            regex=r'^[\w.@+-]+$',
-            message='Имя пользователя содержит недопустимый символ'
-        )]
+        validators=[validate_username]
     )
     email = models.EmailField(
         max_length=CONST['MAX_LENGTH_EMAIL'],
