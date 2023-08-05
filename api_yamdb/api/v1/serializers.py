@@ -1,29 +1,26 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from api_yamdb.settings import CONST
-from .core import (BaseUserSerializer,
-                   BaseUserValidators)
+from .core import BaseUserSerializer
 from reviews.models import (Category,
                             Comment,
                             Genre,
                             Review,
                             Title)
+from reviews.validators import validate_username
 
 
 User = get_user_model()
 
 
-class UserCreateSerializer(serializers.Serializer, BaseUserValidators):
+class UserCreateSerializer(serializers.Serializer):
     """Сериализатор регистрации пользователя."""
-
-    username_validator = UnicodeUsernameValidator()
 
     username = serializers.CharField(
         max_length=CONST['MAX_LENGTH_USERNAME'],
-        validators=[username_validator, ],
+        validators=[validate_username],
         required=True,
     )
 
@@ -56,7 +53,6 @@ class GetTokenSerializer(serializers.Serializer):
 
 
 class UserSerializerForAdmin(serializers.ModelSerializer,
-                             BaseUserValidators,
                              BaseUserSerializer
                              ):
     """Сериализатор пользователей User для адимна."""
