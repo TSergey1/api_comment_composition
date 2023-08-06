@@ -29,7 +29,6 @@ from .permissions import (IsAdmin,
                           IsAdminOrReadOnly,
                           IsAuthorOrAdminOrModeratOrReadOnly,)
 from reviews.models import (Category,
-                            Comment,
                             Genre,
                             Review,
                             Title)
@@ -148,9 +147,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        """Получение списка/одного комментария, в зависимости от запроса."""
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        return Review.objects.filter(title=title)
+        """Вернет кверисет отзывов для списочных и детальных представлений."""
+        return Title.objects.get(
+            pk=self.kwargs.get('title_id')
+        ).reviews.all()
 
     def perform_create(self, serializer):
         """Создание отзыва, с проверкой на уникальнось в сериализаторе."""
@@ -166,9 +166,15 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        return Comment.objects.filter(review=review)
+        return Review.objects.get(
+            pk=self.kwargs.get('review_id'),
+            title=self.kwargs.get('title_id')
+        ).comments.all()
 
     def perform_create(self, serializer):
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        review = get_object_or_404(
+            Review,
+            pk=self.kwargs.get('review_id'),
+            title=self.kwargs.get('title_id')
+        )
         serializer.save(author=self.request.user, review=review)

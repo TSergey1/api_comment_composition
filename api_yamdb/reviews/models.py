@@ -180,8 +180,10 @@ class Review(models.Model):
             )
         ]
 
-    def str(self):
-        return self.text[:15]
+    def __str__(self):
+        return (
+            f'{self.title.name} ({self.author.username})'
+        )
 
 
 class Comment(models.Model):
@@ -204,7 +206,7 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        verbose_name='Комментируемый отзыв',
+        verbose_name='Отзыв к произведению (автор отзыва)',
     )
 
     class Meta:
@@ -213,5 +215,7 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'
 
-    def str(self):
-        return self.text[:15]
+    def __str__(self):
+        return (
+            f'{self.title.name} ({self.author.username})'
+        )
