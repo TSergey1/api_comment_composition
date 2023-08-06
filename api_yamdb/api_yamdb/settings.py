@@ -136,5 +136,8 @@ CONST = {
     'MAX_LENGTH_EMAIL': 254,
     'MAX_LENGTH_ROLE': 100,
     'MAX_LENGTH_NAME': 256,
-    'MAX_LENGTH_SLUG': 50
+    'MAX_LENGTH_SLUG': 50,
+    'ADMIN': 'admin',
+    'MODERATOR': 'moderator',
+    'USER': 'user'
 }

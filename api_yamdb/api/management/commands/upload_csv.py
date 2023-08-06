@@ -5,15 +5,28 @@ import pandas as pd
 
 from django.core.management.base import BaseCommand
 
+from api_yamdb.settings import CONST
 
 current_file = os.path.realpath(__file__)
 current_directory = os.path.dirname(current_file) + '/../../..'
 path_to_csv = current_directory + '/static/data/'
 
+CONST_CSV = {
+    'REVIEWS_': 'reviews_',
+    'GENRE_': 'genre_',
+    'REVIEWS_USER': 'reviews_user',
+    'ROLE': 'role',
+    'DB.SPLITE3': '/db.sqlite3',
+    'S.CSV': 's.csv',
+    'IS_SUPERUSER': 'is_superuser',
+    'IS_STAFF': 'is_staff',
+    'ID': 'id'
+}
+
 
 class Command(BaseCommand):
     help = """
-    Use 'python3 manage.py upload_csv -u' if you want
+    Use 'python manage.py upload_csv -u' if you want
     update data base from csv file.
     Attention! It's can drop table in your DB!
     """
@@ -21,15 +34,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['upgrade_db']:
             files = os.listdir(path_to_csv)
-            conn = sqlite3.connect(current_directory + '/db.sqlite3')
+            conn = sqlite3.connect(current_directory + CONST_CSV['DB.SPLITE3'])
             for csv_file in files:
-                if 'genre_' in csv_file:
-                    table = ('reviews_'
-                             + csv_file.split('_')[1].rstrip('s.csv')
-                             + '_' + csv_file.split('_')[0]
-                             )
+                if CONST_CSV['GENRE_'] in csv_file:
+                    table = (
+                        CONST_CSV['REVIEWS_']
+                        + csv_file.split('_')[1].rstrip('s.csv')
+                        + '_' + csv_file.split('_')[0]
+                    )
                 else:
-                    table = 'reviews_' + csv_file.rstrip('s.csv')
+                    table = CONST_CSV['REVIEWS_'] + csv_file.rstrip('s.csv')
                 conn.execute(f'''DELETE FROM {table};''')
                 cursor = conn.execute(f'select * from {table}')
                 names = list(map(lambda x: x[0], cursor.description))
@@ -46,13 +60,18 @@ class Command(BaseCommand):
                     else:
                         new_data[n] = ''
 
-                if table == 'reviews_user':
-                    new_data.loc[new_data['role']
-                                 == 'admin', ('is_superuser', 'is_staff')] = 1
-                    new_data.loc[new_data['role']
-                                 == 'moderator', 'is_staff'] = 1
+                if table == CONST_CSV['REVIEWS_USER']:
+                    new_data.loc[new_data[CONST_CSV['ROLE']]
+                                 == CONST['ADMIN'],
+                                 (CONST_CSV['IS_SUPERUSER'],
+                                  CONST_CSV['IS_STAFF'])] = 1
                     new_data.loc[
-                        new_data['id'] > 0, ('is_active', 'date_joined')
+                        new_data[CONST_CSV['ROLE']]
+                        == CONST['MODERATOR'], CONST_CSV['IS_STAFF']
+                    ] = 1
+                    new_data.loc[
+                        new_data[CONST_CSV['ID']] > 0,
+                        ('is_active', 'date_joined')
                     ] = (1, datetime.datetime.now())
                 new_data.to_sql(table, conn, if_exists='append', index=False)
             conn.commit()
@@ -60,7 +79,7 @@ class Command(BaseCommand):
         else:
             print("""
 Use:
-'python3 manage.py upload_csv -u'
+'python manage.py upload_csv -u'
 if you want update data base from csv file.
 Be attention! It's drop table in your DB!
     """)

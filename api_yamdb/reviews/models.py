@@ -13,13 +13,10 @@ class User(AbstractUser):
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
-    MAX_LENGTH_USERNAME = 150
-    MAX_LENGTH_EMAIL = 254
-    MAX_LENGTH_ROLE = 100
     ROLES = [
-        (ADMIN, 'Администратор'),
-        (MODERATOR, 'Модератор'),
-        (USER, 'Пользователь'),
+        (CONST['ADMIN'], 'Администратор'),
+        (CONST['MODERATOR'], 'Модератор'),
+        (CONST['USER'], 'Пользователь'),
     ]
     username = models.CharField(
         max_length=CONST['MAX_LENGTH_USERNAME'],
@@ -36,7 +33,7 @@ class User(AbstractUser):
     role = models.CharField(
         max_length=CONST['MAX_LENGTH_ROLE'],
         choices=ROLES,
-        default=USER,
+        default=CONST['USER'],
         verbose_name='Роль'
     )
 
@@ -50,15 +47,15 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
+        return self.role == CONST['ADMIN']
 
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return self.role == CONST['MODERATOR']
 
     @property
     def is_user(self):
-        return self.role == self.USER
+        return self.role == CONST['USER']
 
 
 class BaseCategoryGenre(models.Model):

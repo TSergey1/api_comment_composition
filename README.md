@@ -73,7 +73,10 @@ pip install -r requirements.txt
 python manage.py migrate
 ```
 7. Для теста можно автоматически наполнить БД данными из csv файлов (BASE_DIR/static/data).
-   Для этого нужно запустить файл upload_csv.py из корня проекта (BASE_DIR/).
+   Для этого нужно выполнить команду
+```bash
+python manage.py upload_csv
+```
    !!!Будьте внимательны существующие данные из БД будут утеряны!!!
 
 ## Примеры запросов к API
