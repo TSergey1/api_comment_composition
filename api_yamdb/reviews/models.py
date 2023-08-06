@@ -4,11 +4,12 @@ from django.core.validators import (MinValueValidator,
                                     MaxValueValidator)
 
 from api_yamdb.settings import CONST
-from .validators import validate_username
+from .validators import validate_username, validate_year
 
 
 class User(AbstractUser):
     """Модель пользователей."""
+
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
@@ -60,8 +61,8 @@ class User(AbstractUser):
         return self.role == self.USER
 
 
-class Category(models.Model):
-    """Модель категорий произведений."""
+class BaseCategoryGenre(models.Model):
+    """Базовый класс категорий и жанров произведений."""
 
     name = models.CharField(
         max_length=CONST['MAX_LENGTH_NAME'],
@@ -74,6 +75,13 @@ class Category(models.Model):
     )
 
     class Meta:
+        abstract = True
+
+
+class Category(BaseCategoryGenre):
+    """Модель категорий произведений."""
+
+    class Meta:
         ordering = ('name',)
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
@@ -82,18 +90,8 @@ class Category(models.Model):
         return self.name
 
 
-class Genre(models.Model):
+class Genre(BaseCategoryGenre):
     """Модель жанров произведений."""
-
-    name = models.CharField(
-        max_length=CONST['MAX_LENGTH_NAME'],
-        verbose_name='Наименование'
-    )
-    slug = models.SlugField(
-        max_length=CONST['MAX_LENGTH_SLUG'],
-        unique=True,
-        verbose_name='Slug'
-    )
 
     class Meta:
         ordering = ('name',)
@@ -109,9 +107,12 @@ class Title(models.Model):
 
     name = models.CharField(
         max_length=CONST['MAX_LENGTH_NAME'],
+        db_index=True,
         verbose_name='Название'
     )
     year = models.IntegerField(
+        db_index=True,
+        validators=[validate_year],
         verbose_name='Год выпуска'
     )
     description = models.TextField(
