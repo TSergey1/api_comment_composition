@@ -1,29 +1,44 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import (MinValueValidator,
+                                    MaxValueValidator)
+
+from api_yamdb.settings import CONST
+from .validators import validate_username, validate_year
 
 
 class User(AbstractUser):
     """Модель пользователей."""
+
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
     ROLES = [
-        (ADMIN, 'Администратор'),
-        (MODERATOR, 'Модератор'),
-        (USER, 'Пользователь'),
+        (CONST['ADMIN'], 'Администратор'),
+        (CONST['MODERATOR'], 'Модератор'),
+        (CONST['USER'], 'Пользователь'),
     ]
-    email = models.EmailField(max_length=254, unique=True)
+    username = models.CharField(
+        max_length=CONST['MAX_LENGTH_USERNAME'],
+        verbose_name='Имя пользователя',
+        unique=True,
+        db_index=True,
+        validators=[validate_username]
+    )
+    email = models.EmailField(
+        max_length=CONST['MAX_LENGTH_EMAIL'],
+        unique=True
+    )
     bio = models.TextField(blank=True, verbose_name='Биография')
     role = models.CharField(
-        max_length=100,
+        max_length=CONST['MAX_LENGTH_ROLE'],
         choices=ROLES,
-        default='user',
+        default=CONST['USER'],
         verbose_name='Роль'
     )
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
@@ -32,29 +47,36 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN
+        return self.role == CONST['ADMIN']
 
     @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return self.role == CONST['MODERATOR']
 
     @property
     def is_user(self):
-        return self.role == self.USER
+        return self.role == CONST['USER']
 
 
-class Category(models.Model):
-    """Модель категорий произведений."""
+class BaseCategoryGenre(models.Model):
+    """Базовый класс категорий и жанров произведений."""
 
     name = models.CharField(
-        max_length=256,
-        verbose_name='Наименование категории'
+        max_length=CONST['MAX_LENGTH_NAME'],
+        verbose_name='Наименование'
     )
     slug = models.SlugField(
-        max_length=50,
+        max_length=CONST['MAX_LENGTH_SLUG'],
         unique=True,
-        verbose_name='Slug категории'
+        verbose_name='Slug'
     )
+
+    class Meta:
+        abstract = True
+
+
+class Category(BaseCategoryGenre):
+    """Модель категорий произведений."""
 
     class Meta:
         ordering = ('name',)
@@ -65,18 +87,8 @@ class Category(models.Model):
         return self.name
 
 
-class Genre(models.Model):
+class Genre(BaseCategoryGenre):
     """Модель жанров произведений."""
-
-    name = models.CharField(
-        max_length=256,
-        verbose_name='Наименование жанра'
-    )
-    slug = models.SlugField(
-        max_length=50,
-        unique=True,
-        verbose_name='Slug жанра'
-    )
 
     class Meta:
         ordering = ('name',)
@@ -91,10 +103,13 @@ class Title(models.Model):
     """Модель произведений."""
 
     name = models.CharField(
-        max_length=256,
+        max_length=CONST['MAX_LENGTH_NAME'],
+        db_index=True,
         verbose_name='Название'
     )
     year = models.IntegerField(
+        db_index=True,
+        validators=[validate_year],
         verbose_name='Год выпуска'
     )
     description = models.TextField(
@@ -162,8 +177,10 @@ class Review(models.Model):
             )
         ]
 
-    def str(self):
-        return self.text[:15]
+    def __str__(self):
+        return (
+            f'{self.title.name} ({self.author.username})'
+        )
 
 
 class Comment(models.Model):
@@ -186,7 +203,7 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        verbose_name='Комментируемый отзыв',
+        verbose_name='Отзыв к произведению (автор отзыва)',
     )
 
     class Meta:
@@ -195,5 +212,7 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'
 
-    def str(self):
-        return self.text[:15]
+    def __str__(self):
+        return (
+            f'{self.title.name} ({self.author.username})'
+        )

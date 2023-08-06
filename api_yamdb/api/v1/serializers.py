@@ -1,31 +1,31 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from api.validators import BaseValidate
+from api_yamdb.settings import CONST
+from .core import BaseUserSerializer
 from reviews.models import (Category,
                             Comment,
                             Genre,
                             Review,
                             Title)
+from reviews.validators import validate_username
+
 
 User = get_user_model()
 
 
-class UserCreateSerializer(serializers.Serializer, BaseValidate):
+class UserCreateSerializer(serializers.Serializer):
     """Сериализатор регистрации пользователя."""
 
-    username_validator = UnicodeUsernameValidator()
-
     username = serializers.CharField(
-        max_length=150,
-        validators=[username_validator],
+        max_length=CONST['MAX_LENGTH_USERNAME'],
+        validators=[validate_username],
         required=True,
     )
 
     email = serializers.EmailField(
-        max_length=254,
+        max_length=CONST['MAX_LENGTH_EMAIL'],
         required=True,
     )
 
@@ -52,30 +52,17 @@ class GetTokenSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField()
 
 
-class UserSerializerForAdmin(serializers.ModelSerializer, BaseValidate):
+class UserSerializerForAdmin(serializers.ModelSerializer,
+                             BaseUserSerializer
+                             ):
     """Сериализатор пользователей User для адимна."""
-
-    class Meta:
-        model = User
-        fields = ('username',
-                  'email',
-                  'first_name',
-                  'last_name',
-                  'bio',
-                  'role')
+    pass
 
 
-class UserSerializerForAuther(serializers.ModelSerializer):
+class UserSerializerForAuther(serializers.ModelSerializer, BaseUserSerializer):
     """Сериализатор пользователей User для автора."""
 
-    class Meta:
-        model = User
-        fields = ('username',
-                  'email',
-                  'first_name',
-                  'last_name',
-                  'bio',
-                  'role')
+    class Meta(BaseUserSerializer.Meta):
         read_only_fields = ('role',)
 
 
@@ -84,7 +71,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('name', 'slug')
+        exclude = ('id',)
         lookup_field = 'slug'
 
 
@@ -93,7 +80,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = ('name', 'slug')
+        exclude = ('id',)
         lookup_field = 'slug'
 
 
@@ -142,14 +129,20 @@ class ReadTitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerialaizer(serializers.ModelSerializer):
-    """Преобразование данных в формат Python для отзывов."""
+    """Сериализатор для отзывов"""
 
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
 
     class Meta:
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        fields = (
+            'id',
+            'text',
+            'author',
+            'score',
+            'pub_date'
+        )
         model = Review
 
     def validate(self, validated_data):
@@ -171,7 +164,7 @@ class ReviewSerialaizer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Преобразование данных в формат Python для комментариев."""
+    """Сериализатор для комментариев"""
 
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
