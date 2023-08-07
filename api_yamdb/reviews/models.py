@@ -159,7 +159,7 @@ class BaseReviewComment(models.Model):
 
 class Review(BaseReviewComment):
     """Модель отзывов к произведениям."""
-    
+
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
