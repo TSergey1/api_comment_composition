@@ -135,7 +135,7 @@ class Title(models.Model):
 
 
 class BaseReviewComment(models.Model):
-    """Базовый класс отзывов и коментариев."""
+    """Базовый класс отзывов и комментариев."""
 
     author = models.ForeignKey(
         User,
