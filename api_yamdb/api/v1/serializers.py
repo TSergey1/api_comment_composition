@@ -3,7 +3,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from api_yamdb.settings import CONST
-from .core import BaseUserSerializer
 from reviews.models import (Category,
                             Comment,
                             Genre,
@@ -57,6 +56,19 @@ class UserSerializerForAdmin(serializers.ModelSerializer,
                              ):
     """Сериализатор пользователей User для адимна."""
     pass
+
+
+class BaseUserSerializer:
+    """Базовый класс Serializer User."""
+
+    class Meta:
+        model = User
+        fields = ('username',
+                  'email',
+                  'first_name',
+                  'last_name',
+                  'bio',
+                  'role')
 
 
 class UserSerializerForAuther(serializers.ModelSerializer, BaseUserSerializer):
