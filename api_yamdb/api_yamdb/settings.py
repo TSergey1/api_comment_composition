@@ -141,3 +141,5 @@ CONST = {
     'MODERATOR': 'moderator',
     'USER': 'user'
 }
+
+DEFAULT_FROM_EMAIL = 'admin@yamdb.com'
