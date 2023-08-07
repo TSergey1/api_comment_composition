@@ -10,9 +10,6 @@ from .validators import validate_username, validate_year
 class User(AbstractUser):
     """Модель пользователей."""
 
-    ADMIN = 'admin'
-    MODERATOR = 'moderator'
-    USER = 'user'
     ROLES = [
         (CONST['ADMIN'], 'Администратор'),
         (CONST['MODERATOR'], 'Модератор'),
@@ -137,27 +134,36 @@ class Title(models.Model):
         return self.name
 
 
-class Review(models.Model):
-    """Модель отзывов к произведениям."""
+class BaseReviewComment(models.Model):
+    """Базовый класс отзывов и коментариев."""
 
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True,
+    )
+    text = models.TextField(
+        'Текст',
+        help_text='Введите текст',
+    )
+
+    class Meta:
+        ordering = ('pub_date',)
+        abstract = True
+
+
+class Review(BaseReviewComment):
+    """Модель отзывов к произведениям."""
+    
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         verbose_name='Произведение на которое пишется отзыв',
-    )
-    text = models.TextField(
-        'Текст отзыва',
-        help_text='Введите текст отзыва',
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Автор отзыва',
-    )
-    pub_date = models.DateTimeField(
-        'Дата добавления отзыва',
-        auto_now_add=True,
-        db_index=True,
     )
     score = models.PositiveSmallIntegerField(
         verbose_name='Рейтинг произведения',
@@ -166,7 +172,6 @@ class Review(models.Model):
     )
 
     class Meta:
-        ordering = ('pub_date',)
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         default_related_name = 'reviews'
@@ -183,23 +188,9 @@ class Review(models.Model):
         )
 
 
-class Comment(models.Model):
+class Comment(BaseReviewComment):
     """Модель комментариев к отзывам."""
 
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Автор комментария',
-    )
-    pub_date = models.DateTimeField(
-        'Дата добавления комментария',
-        auto_now_add=True,
-        db_index=True,
-    )
-    text = models.TextField(
-        'Текст комментария',
-        help_text='Введите текст комментария',
-    )
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
@@ -207,7 +198,6 @@ class Comment(models.Model):
     )
 
     class Meta:
-        ordering = ('pub_date',)
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'
