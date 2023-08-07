@@ -49,7 +49,7 @@ class RegistrationUserView(APIView):
                 subject='Код регистрации YaMDb',
                 message=f'username: {username}, '
                         f'confirmation_code: {confirmation_code}',
-                from_email='aaa@yamdb.com',
+                from_email=None,
                 recipient_list=[user.email],
                 fail_silently=True,
             )
