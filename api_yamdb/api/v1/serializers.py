@@ -123,8 +123,8 @@ class TitleSerializer(serializers.ModelSerializer):
 class ReadTitleSerializer(serializers.ModelSerializer):
     """Сериализатор для произведений (только запросов 'list', 'retrieve')."""
 
-    category = CategorySerializer()
-    genre = GenreSerializer(many=True)
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(many=True, read_only=True)
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
