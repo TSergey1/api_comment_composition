@@ -51,13 +51,6 @@ class GetTokenSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField()
 
 
-class UserSerializerForAdmin(serializers.ModelSerializer,
-                             BaseUserSerializer
-                             ):
-    """Сериализатор пользователей User для адимна."""
-    pass
-
-
 class BaseUserSerializer:
     """Базовый класс Serializer User."""
 
@@ -69,6 +62,13 @@ class BaseUserSerializer:
                   'last_name',
                   'bio',
                   'role')
+
+
+class UserSerializerForAdmin(serializers.ModelSerializer,
+                             BaseUserSerializer
+                             ):
+    """Сериализатор пользователей User для адимна."""
+    pass
 
 
 class UserSerializerForAuther(serializers.ModelSerializer, BaseUserSerializer):
