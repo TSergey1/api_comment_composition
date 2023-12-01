@@ -82,28 +82,30 @@ python manage.py upload_csv
 ```
    !!!Будьте внимательны существующие данные из БД будут утеряны!!!
 
-## Примеры запросов к API
-# Список возможных эндпоинтов смотри в документации http://127.0.0.1:8000/redoc/.
+## Примеры запросов к API (полный список см. в документации http://127.0.0.1:8000/redoc/)
 
-Примеры некоторых запросов API
-Регистрация пользователя:
-POST /api/v1/auth/signup/
-Получение данных своей учетной записи:
-GET /api/v1/users/me/
-Добавление новой категории:
-POST /api/v1/categories/
-Удаление жанра:
-DELETE /api/v1/genres/{slug}
-Частичное обновление информации о произведении:
-PATCH /api/v1/titles/{titles_id}
-Получение списка всех отзывов:
-GET /api/v1/titles/{title_id}/reviews/
-Добавление комментария к отзыву:
-POST /api/v1/titles/{title_id}/reviews/{review_id}/comments/
+<ul>
+<li>Регистрация пользователя:
+POST /api/v1/auth/signup/</li>
+<li>Получение данных своей учетной записи:
+GET /api/v1/users/me/</li>
+<li>Добавление новой категории:
+POST /api/v1/categories/</li>
+<li>Удаление жанра:
+DELETE /api/v1/genres/{slug}</li>
+<li>Частичное обновление информации о произведении:
+PATCH /api/v1/titles/{titles_id}</li>
+<li>Получение списка всех отзывов:
+GET /api/v1/titles/{title_id}/reviews/</li>
+<li>Добавление комментария к отзыву:
+POST /api/v1/titles/{title_id}/reviews/{review_id}/comments/</li>
+</ul>
 
-Полный список запросов API находятся в документации
 
-Авторы
-Тыртычный Сергей - https://github.com/TSergey1
-Леденев Виктор - https://github.com/brasavarius
-Баранов Дмитрий - https://github.com/dvkab
+
+## Авторы
+<ul>
+<li>Тыртычный Сергей - https://github.com/TSergey1</li>
+<li>Леденев Виктор - https://github.com/brasavarius</li>
+<li>Баранов Дмитрий - https://github.com/dvkab</li>
+</ul>
